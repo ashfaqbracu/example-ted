@@ -191,7 +191,11 @@ class SimpleExpenseRAG:
         return chunks
 
     def _simple_search(self, query: str, n_results: int = 5) -> List[Dict]:
-        """Simple keyword-based search for relevant expense data"""
+        """
+        Simple keyword-based search for relevant expense data
+        NOTE: Currently not used as we send ALL data in context instead of chunking
+        Kept for potential future use if selective data becomes necessary
+        """
         query_lower = query.lower()
         scored_chunks = []
         
@@ -224,12 +228,11 @@ class SimpleExpenseRAG:
         """Build context from expense data and conversation history"""
         context_parts = []
         
-        # Add relevant expense data
-        relevant_chunks = self._simple_search(query, n_results=3)
-        if relevant_chunks:
-            context_parts.append("=== EXPENSE DATA ===")
-            for i, chunk in enumerate(relevant_chunks, 1):
-                context_parts.append(f"Data {i}:\n{chunk['text']}")
+        # Add ALL expense data instead of just relevant chunks
+        if self.processed_chunks:
+            context_parts.append("=== ALL EXPENSE DATA ===")
+            for i, chunk in enumerate(self.processed_chunks, 1):
+                context_parts.append(f"Data {i} ({chunk['type']}):\n{chunk['text']}")
         
         # Add recent conversation history (last 3 exchanges)
         if self.chat_history:
@@ -277,14 +280,15 @@ class SimpleExpenseRAG:
         # Create prompt template
         prompt_template = """Use the information from the context to answer the question at the end. If you don't know the answer based on the provided data, just say that you don't know, definitely do not try to make up an answer.
 
-You are Teddy, a friendly and knowledgeable personal finance assistant. Use the expense data and conversation history to provide helpful, specific financial advice.
+You are Teddy, a friendly and knowledgeable personal finance assistant. Use ALL the expense data and conversation history to provide helpful, specific financial advice.
 
 {context}
 
 Question: {question}
 
 Guidelines:
-- If someone asks about expenses, provide a summary of all the expenses, then ask if they specifically want to know about any particular aspect.
+- You have access to ALL expense data available - use it comprehensively to answer questions
+- If someone asks about expenses, provide a summary of all the expenses, then ask if they specifically want to know about any particular aspect
 - Use exact numbers from the expense data when available
 - Be encouraging but honest about financial situations
 - Provide specific recommendations based on the data
