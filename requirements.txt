@@ -1,0 +1,19 @@
+pip>=25.2
+setuptools>=70.0.0
+wheel>=0.44.0
+
+# Rust-based libs pinned to versions with wheels
+orjson==3.10.12
+cryptography==42.0.7
+uvloop==0.21.0
+
+# Core app dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.9.2   # let this install the correct pydantic-core automatically
+
+# Utils
+python-dotenv==1.0.0
+openai>=1.12.0
+requests==2.31.0
+python-multipart==0.0.6
